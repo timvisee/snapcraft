@@ -186,6 +186,8 @@ class RustPlugin(snapcraft.BasePlugin):
                 "RUSTDOC": self._rustdoc,
                 "RUST_PATH": self._rustlib,
                 "RUSTFLAGS": self._rustflags(),
+                "RUSTUP_HOME": self._rustpath,
+                "CARGO_HOME": self._cargo_dir,
             }
         )
         return env
@@ -232,13 +234,12 @@ class RustPlugin(snapcraft.BasePlugin):
         self._rustup_get.download()
         cmd = [
             self._rustup,
-            "--prefix={}".format(self._rustpath),
             "--disable-sudo",
             "--save",
         ] + options
         if self.project.is_cross_compiling:
             cmd.append("--with-target={}".format(self._target))
-        self.run(cmd)
+        self.run(cmd, env=self._build_env())
 
     def _fetch_deps(self):
         if self.options.source_subdir:
